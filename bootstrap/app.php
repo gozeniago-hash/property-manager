@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -26,4 +27,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // A logged-out visit to a tenant-portal page should bounce to the
+        // tenant login page, not the property-manager login page.
+        $exceptions->render(function (AuthenticationException $e, Request $request) {
+            if (in_array('tenant', $e->guards(), true)) {
+                return redirect()->guest(route('tenant.login'));
+            }
+        });
     })->create();
