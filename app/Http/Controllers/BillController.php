@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NewBillMail;
 use App\Models\Bill;
 use App\Models\Unit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class BillController extends Controller
@@ -34,7 +37,9 @@ class BillController extends Controller
     {
         $data = $this->validateData($request);
 
-        Bill::create($data);
+        $bill = Bill::create($data);
+
+        $this->notifyTenant($bill);
 
         return redirect()->route('bills.index')->with('status', 'Bill added.');
     }
@@ -61,6 +66,22 @@ class BillController extends Controller
         $bill->delete();
 
         return redirect()->route('bills.index')->with('status', 'Bill deleted.');
+    }
+
+    private function notifyTenant(Bill $bill): void
+    {
+        $tenant = $bill->unit?->currentTenant;
+
+        if (! $tenant || ! $tenant->email) {
+            return;
+        }
+
+        try {
+            Mail::to($tenant->email)->send(new NewBillMail($bill->load('unit.property')));
+        } catch (\Throwable $e) {
+            // Never let a broken mail setup stop a bill from being saved.
+            Log::warning('Failed to send new bill email: '.$e->getMessage());
+        }
     }
 
     private function validateData(Request $request): array
