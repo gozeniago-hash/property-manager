@@ -1,13 +1,13 @@
 <x-layout title="Tenants">
     <div class="flex justify-end mb-4">
-        <a href="{{ route('tenants.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg px-4 py-2">
+        <a href="{{ route('tenants.create') }}" class="bg-[#4f46e5] hover:bg-[#4338ca] text-white text-sm font-medium rounded-lg px-4 py-2">
             + Add Tenant
         </a>
     </div>
 
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-xl border border-[#e2e8f0] overflow-hidden">
         <table class="w-full text-sm">
-            <thead class="bg-slate-50 text-left text-xs uppercase text-slate-500">
+            <thead class="bg-[#f8fafc] text-left text-xs uppercase text-[#64748b]">
                 <tr>
                     <th class="px-5 py-3">Name</th>
                     <th class="px-5 py-3">Unit</th>
@@ -19,36 +19,36 @@
             <tbody class="divide-y divide-slate-100">
                 @forelse ($tenants as $tenant)
                     <tr>
-                        <td class="px-5 py-3 font-medium text-slate-800">
+                        <td class="px-5 py-3 font-medium text-[#1e293b]">
                             <a href="{{ route('tenants.show', $tenant) }}" class="hover:underline">{{ $tenant->name }}</a>
                         </td>
-                        <td class="px-5 py-3 text-slate-600">
+                        <td class="px-5 py-3 text-[#475569]">
                             @if ($tenant->unit)
                                 {{ $tenant->unit->property->name ?? '' }} / {{ $tenant->unit->name }}
                             @else
                                 —
                             @endif
                         </td>
-                        <td class="px-5 py-3 text-slate-600">
+                        <td class="px-5 py-3 text-[#475569]">
                             {{ $tenant->phone ?: '' }} {{ $tenant->phone && $tenant->email ? '·' : '' }} {{ $tenant->email ?: '' }}
                             @if (!$tenant->phone && !$tenant->email) — @endif
                         </td>
                         <td class="px-5 py-3">
-                            <span class="text-xs px-2 py-0.5 rounded-full {{ $tenant->status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600' }}">
+                            <x-badge :tone="$tenant->status === 'active' ? 'positive' : 'neutral'">
                                 {{ ucfirst($tenant->status) }}
-                            </span>
+                            </x-badge>
                         </td>
                         <td class="px-5 py-3 text-right space-x-3">
-                            <a href="{{ route('tenants.edit', $tenant) }}" class="text-blue-600 hover:underline">Edit</a>
+                            <a href="{{ route('tenants.edit', $tenant) }}" class="text-[#4f46e5] hover:underline">Edit</a>
                             <form action="{{ route('tenants.destroy', $tenant) }}" method="POST" class="inline"
                                   onsubmit="return confirm('Delete this tenant?');">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:underline">Delete</button>
+                                <button type="submit" class="text-[#9f2d42] hover:underline">Delete</button>
                             </form>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="px-5 py-6 text-center text-slate-500">No tenants yet.</td></tr>
+                    <tr><td colspan="5" class="px-5 py-6 text-center text-[#64748b]">No tenants yet.</td></tr>
                 @endforelse
             </tbody>
         </table>
