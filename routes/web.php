@@ -4,8 +4,10 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\ConcernController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\TenantPortal\AuthenticatedSessionController as TenantAuthenticatedSessionController;
 use App\Http\Controllers\TenantPortal\BillController as TenantBillController;
@@ -33,6 +35,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('tenants', TenantController::class);
     Route::resource('bills', BillController::class)->except(['show']);
     Route::resource('concerns', ConcernController::class)->except(['show']);
+    Route::resource('expenses', ExpenseController::class)->except(['show']);
+
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 
     Route::post('/bills/{bill}/payments', [PaymentController::class, 'store'])->name('payments.store');
     Route::delete('/payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');

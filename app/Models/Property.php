@@ -20,4 +20,9 @@ class Property extends Model
     {
         return $this->hasMany(Unit::class);
     }
+
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expense::class);
+    }
 }

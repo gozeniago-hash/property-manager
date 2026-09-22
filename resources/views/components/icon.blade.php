@@ -8,6 +8,8 @@
         'tenants' => '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/>',
         'bills' => '<path d="M6 3h12v17l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3V3z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
         'concerns' => '<path d="M12 3.5 21 19H3L12 3.5z"/><path d="M12 10v4"/><circle cx="12" cy="16.5" r="0.9" fill="currentColor" stroke="none"/>',
+        'expenses' => '<circle cx="12" cy="12" r="9"/><path d="M15 9.5a2.5 2.5 0 0 0-2.5-2H11a2 2 0 0 0 0 4h2a2 2 0 0 1 0 4h-1.5a2.5 2.5 0 0 1-2.5-2"/><path d="M12 6v1.3M12 16.7V18"/>',
+        'reports' => '<path d="M4 20V10M10 20V4M16 20v-7M4 20h16"/>',
         'logout' => '<path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4"/><path d="M14 15l4-4-4-4"/><path d="M18 11H9"/>',
         'check' => '<path d="M4 12l5 5L20 6"/>',
     ][$name] ?? '';

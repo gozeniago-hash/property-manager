@@ -25,6 +25,8 @@
                     ['route' => 'tenants.index', 'label' => 'Tenants', 'icon' => 'tenants'],
                     ['route' => 'bills.index', 'label' => 'Bills & Payments', 'icon' => 'bills'],
                     ['route' => 'concerns.index', 'label' => 'Tenant Concerns', 'icon' => 'concerns'],
+                    ['route' => 'expenses.index', 'label' => 'Expenses', 'icon' => 'expenses'],
+                    ['route' => 'reports.index', 'label' => 'Reports', 'icon' => 'reports'],
                 ];
             @endphp
             @foreach ($navItems as $item)
