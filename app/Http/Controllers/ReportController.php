@@ -48,23 +48,43 @@ class ReportController extends Controller
         if ($propertyId) {
             $expensesQuery->where('property_id', $propertyId);
         }
-        $totalExpenses = (float) $expensesQuery->sum('amount');
+        $expenses = $expensesQuery->get();
+        $totalExpenses = (float) $expenses->sum('amount');
 
         $netCashFlow = $collected - $totalExpenses;
 
-        // Breakdown by property.
+        // Expense report: totals by category, for the period (and property, if filtered).
+        $expensesByCategory = $expenses->groupBy('category')
+            ->map(fn ($group, $category) => [
+                'category' => $category,
+                'amount' => (float) $group->sum('amount'),
+            ])
+            ->sortByDesc('amount')
+            ->values();
+
+        // Breakdown by property — income, collections, and expenses, rolled up into net income.
         $properties = Property::orderBy('name')->get();
-        $byProperty = $properties->map(function (Property $property) use ($bills, $payments) {
+        $byProperty = $properties->map(function (Property $property) use ($bills, $payments, $expenses) {
             $propertyBills = $bills->filter(fn (Bill $bill) => optional($bill->unit)->property_id === $property->id);
             $propertyPayments = $payments->filter(fn (Payment $payment) => optional(optional($payment->bill)->unit)->property_id === $property->id);
+            $propertyExpenses = $expenses->filter(fn (Expense $expense) => $expense->property_id === $property->id);
+
+            $propertyIncome = (float) $propertyBills->sum('amount');
+            $propertyCollected = (float) $propertyPayments->sum('amount');
+            $propertyExpenseTotal = (float) $propertyExpenses->sum('amount');
 
             return [
                 'property' => $property,
-                'income' => (float) $propertyBills->sum('amount'),
-                'collected' => (float) $propertyPayments->sum('amount'),
+                'income' => $propertyIncome,
+                'collected' => $propertyCollected,
                 'collectibles' => (float) $propertyBills->sum(fn (Bill $bill) => max($bill->balance(), 0)),
+                'expenses' => $propertyExpenseTotal,
+                'net_income' => $propertyIncome - $propertyExpenseTotal,
             ];
-        })->filter(fn (array $row) => $row['income'] > 0 || $row['collected'] > 0 || $row['collectibles'] > 0)->values();
+        })->filter(fn (array $row) => $row['income'] > 0 || $row['collected'] > 0 || $row['collectibles'] > 0 || $row['expenses'] > 0)->values();
+
+        // Expenses not tied to any specific property (general/overhead costs).
+        $generalExpenses = (float) $expenses->whereNull('property_id')->sum('amount');
 
         return view('reports.index', [
             'from' => $from,
@@ -76,6 +96,9 @@ class ReportController extends Controller
             'collectibles' => $collectibles,
             'totalExpenses' => $totalExpenses,
             'netCashFlow' => $netCashFlow,
+            'netIncome' => $totalIncome - $totalExpenses,
+            'expensesByCategory' => $expensesByCategory,
+            'generalExpenses' => $generalExpenses,
             'byProperty' => $byProperty,
         ]);
     }
