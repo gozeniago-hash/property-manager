@@ -48,12 +48,16 @@ class ReportController extends Controller
         if ($propertyId) {
             $expensesQuery->where('property_id', $propertyId);
         }
-        $expenses = $expensesQuery->get();
+        $expenses = $expensesQuery->with('property')->get();
         $totalExpenses = (float) $expenses->sum('amount');
 
         $netCashFlow = $collected - $totalExpenses;
 
-        // Expense report: totals by category, for the period (and property, if filtered).
+        // Expense report: every individual expense in the period (and property, if filtered),
+        // each showing which property it's tied to.
+        $expenseDetails = $expenses->sortByDesc('expense_date')->values();
+
+        // Category subtotals, for the summary line at the bottom of the report.
         $expensesByCategory = $expenses->groupBy('category')
             ->map(fn ($group, $category) => [
                 'category' => $category,
@@ -97,6 +101,7 @@ class ReportController extends Controller
             'totalExpenses' => $totalExpenses,
             'netCashFlow' => $netCashFlow,
             'netIncome' => $totalIncome - $totalExpenses,
+            'expenseDetails' => $expenseDetails,
             'expensesByCategory' => $expensesByCategory,
             'generalExpenses' => $generalExpenses,
             'byProperty' => $byProperty,

@@ -103,15 +103,55 @@
         </table>
     </div>
 
-    <div class="bg-white rounded-xl border border-[#e2e8f0] overflow-hidden">
+    <div class="bg-white rounded-xl border border-[#e2e8f0] overflow-hidden mb-6">
         <div class="px-5 py-4 border-b border-[#e2e8f0]">
             <h2 class="font-semibold text-[#0f172a]">Expense Report</h2>
             <p class="text-xs text-[#64748b] mt-0.5">
-                Expenses by category, {{ $from->format('M j, Y') }} – {{ $to->format('M j, Y') }}
+                {{ $from->format('M j, Y') }} – {{ $to->format('M j, Y') }}
                 @if ($propertyId)
                     &middot; {{ optional($properties->firstWhere('id', $propertyId))->name }}
                 @endif
             </p>
+        </div>
+        <table class="w-full text-sm">
+            <thead class="bg-[#f8fafc] text-left text-xs uppercase text-[#64748b]">
+                <tr>
+                    <th class="px-5 py-3">Date</th>
+                    <th class="px-5 py-3">Category</th>
+                    <th class="px-5 py-3">Property</th>
+                    <th class="px-5 py-3">Description</th>
+                    <th class="px-5 py-3">Amount</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @forelse ($expenseDetails as $expense)
+                    <tr>
+                        <td class="px-5 py-3 text-[#475569]">{{ $expense->expense_date?->format('M j, Y') }}</td>
+                        <td class="px-5 py-3">
+                            <x-badge tone="neutral">{{ ucfirst($expense->category) }}</x-badge>
+                        </td>
+                        <td class="px-5 py-3 text-[#475569]">{{ optional($expense->property)->name ?? 'General' }}</td>
+                        <td class="px-5 py-3 text-[#475569]">{{ $expense->description ?: '—' }}</td>
+                        <td class="px-5 py-3 font-semibold text-[#0f172a]">₱{{ number_format($expense->amount, 2) }}</td>
+                    </tr>
+                @empty
+                    <tr><td colspan="5" class="px-5 py-6 text-center text-[#64748b]">No expenses recorded in this period.</td></tr>
+                @endforelse
+            </tbody>
+            @if ($expenseDetails->isNotEmpty())
+                <tfoot>
+                    <tr class="border-t border-[#e2e8f0] bg-[#f8fafc]">
+                        <td colspan="4" class="px-5 py-3 font-semibold text-[#0f172a]">Total</td>
+                        <td class="px-5 py-3 font-semibold text-[#0f172a]">₱{{ number_format($totalExpenses, 2) }}</td>
+                    </tr>
+                </tfoot>
+            @endif
+        </table>
+    </div>
+
+    <div class="bg-white rounded-xl border border-[#e2e8f0] overflow-hidden">
+        <div class="px-5 py-4 border-b border-[#e2e8f0]">
+            <h2 class="font-semibold text-[#0f172a]">Expenses by Category</h2>
         </div>
         <table class="w-full text-sm">
             <thead class="bg-[#f8fafc] text-left text-xs uppercase text-[#64748b]">
